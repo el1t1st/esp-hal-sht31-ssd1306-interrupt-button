@@ -850,12 +850,12 @@ dependencies = [
 
 [[package]]
 name = "sht31"
-version = "0.3.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2528cd2427055115ba71266f7ab69a21d12f578a0f86394aa9c3411973f8cca1"
+checksum = "44aece1a6e49db86c62d06019fe993a47e5e92c5295f1c546662b97813b56fcb"
 dependencies = [
  "crc",
- "embedded-hal 1.0.0",
+ "embedded-hal 0.2.7",
 ]
 
 [[package]]

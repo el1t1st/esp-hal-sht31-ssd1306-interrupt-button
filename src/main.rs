@@ -28,6 +28,7 @@ use esp_hal::{
     system::SystemControl,
 };
 use esp_println::println;
+use sht31::{prelude::*, Accuracy, TemperatureUnit, SHT31};
 
 static BUTTON: Mutex<RefCell<Option<Input<gpio::Gpio1>>>> = Mutex::new(RefCell::new(None));
 static LED: Mutex<RefCell<Option<Output<gpio::Gpio2>>>> = Mutex::new(RefCell::new(None));
@@ -37,7 +38,7 @@ fn main() -> ! {
     let peripherals = Peripherals::take();
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks = ClockControl::max(system.clock_control).freeze();
-    let _delay = Delay::new(&clocks);
+    let delay = Delay::new(&clocks);
 
     let mut io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     io.set_interrupt_handler(handler);
@@ -55,12 +56,23 @@ fn main() -> ! {
     let led = Output::new(io.pins.gpio2, Level::Low);
     critical_section::with(|cs| LED.borrow_ref_mut(cs).replace(led));
 
+    // SHT31
+    // gpio38 sda
+    // gpio37 sdl
+    let sda_sht = io.pins.gpio38;
+    let sdl_sht = io.pins.gpio37;
+
+    let i2c_sht = I2C::new(peripherals.I2C1, sda_sht, sdl_sht, 100.kHz(), &clocks, None);
+    let mut sht = SHT31::new(i2c_sht, delay)
+        .with_accuracy(Accuracy::High)
+        .with_unit(TemperatureUnit::Celsius);
+
     // Connect the ssd1306 display
-    let sda = io.pins.gpio4;
-    let scl = io.pins.gpio5;
+    let sda2 = io.pins.gpio4;
+    let scl2 = io.pins.gpio5;
 
     // set up an i2c connection for the display
-    let i2c_display = I2C::new(peripherals.I2C0, sda, scl, 100.kHz(), &clocks, None);
+    let i2c_display = I2C::new(peripherals.I2C0, sda2, scl2, 100.kHz(), &clocks, None);
 
     let interface = I2CDisplayInterface::new(i2c_display);
     let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0)
@@ -85,6 +97,8 @@ fn main() -> ! {
     display.flush().unwrap();
 
     loop {
+        let reading = sht.read();
+        println!("{:?}", reading);
         // println!("Privet Mir!");
         // delay.delay(500.millis());
     }

@@ -19,7 +19,7 @@ esp-backtrace = { version = "0.12.0", features = [
 esp-hal = { version = "0.18.0", features = [ "esp32s3", "embedded-hal-02" ] }
 esp-println = { version = "0.9.1", features = ["esp32s3", "log"] }
 log = { version = "0.4.21" }
-sht31 = "0.3.0"
+sht31 = "0.2.0"
 ssd1306 = "0.8.4"
 xtensa-lx = "0.9.0"
 [features]
